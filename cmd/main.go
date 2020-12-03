@@ -55,6 +55,12 @@ func exporter(user *card.Card) (err error) {
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
+	err = writer.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	for _, value := range user.Transactions {
 		err = writer.Write(transactionToSlice(value))
 		if err != nil {
