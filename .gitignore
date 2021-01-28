@@ -3,7 +3,7 @@ Thumbs.db*
 .DS_Store*
 HELP.md
 TODO.md
-
+.vscode
 # Binaries for programs and plugins
 *.exe
 *.exe~

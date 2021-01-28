@@ -2,9 +2,12 @@
 package card
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -46,15 +49,15 @@ type Transaction struct {
 }
 
 // Метод добавления транзакции
-func (card *Card) AddTransaction(transaction Transaction) {
-	card.Transactions = append(card.Transactions, transaction)
+func (c *Card) AddTransaction(transaction Transaction) {
+	c.Transactions = append(c.Transactions, transaction)
 
 }
 
-// Метод геренерации 2х транзакций с разными MCC
-func (card *Card) MakeTransactions(count int) error {
+// Метод генерации 2х транзакций с разными MCC
+func (c *Card) MakeTransactions(count int) error {
 
-	if card == nil {
+	if c == nil {
 		return ErrCardNotFound
 	}
 
@@ -64,7 +67,7 @@ func (card *Card) MakeTransactions(count int) error {
 	}
 
 	for i := 0; i < count; i++ {
-		card.AddTransaction(Transaction{
+		c.AddTransaction(Transaction{
 			Id: strconv.Itoa((i + 1) + i),
 
 			Bill: int64(100_00),
@@ -73,7 +76,7 @@ func (card *Card) MakeTransactions(count int) error {
 			MCC:    "5411",
 			Status: "Done",
 		})
-		card.AddTransaction(Transaction{
+		c.AddTransaction(Transaction{
 			Id: strconv.Itoa((i + 2) + i),
 
 			Bill: int64(102_00),
@@ -301,4 +304,111 @@ func (s *Service) Card() (*Card, error) {
 		}
 	}
 	return nil, ErrCardNotFound
+}
+
+// Экспорт пользовательских транзакций в .csv
+func Exporter(user *Card) (err error) {
+
+	file, err := os.Create("export.csv")
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println(cerr)
+		}
+	}(file)
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	for _, value := range user.Transactions {
+		err = writer.Write(transactionToSlice(value))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+// Функция импорта пользовательских транзакций из .csv
+func Importer(us *Card, fileName string) error {
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Println("Cannot open file", err)
+	}
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println("Cannot close file", cerr)
+		}
+	}(file)
+
+	reader := csv.NewReader(file)
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Println("Cannot read data", err)
+	}
+
+	err = us.MapRowToTransaction(records)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+func (c *Card) MapRowToTransaction(transactions [][]string) error {
+
+	for _, i := range transactions {
+		if i[0] == "ID" {
+			continue
+		}
+
+		b, err := strconv.Atoi(i[1])
+		if err != nil {
+			return err
+		}
+		t, err := strconv.Atoi(i[2])
+		if err != nil {
+			return err
+		}
+
+		transaction := Transaction{
+			Id:     i[0],
+			Bill:   int64(b),
+			Time:   int64(t),
+			MCC:    i[3],
+			Status: i[4],
+		}
+
+		c.AddTransaction(transaction)
+	}
+	return nil
+}
+
+// Функция преобразования пользовательских транзакций в slice
+func transactionToSlice(transaction Transaction) []string {
+
+	var data []string
+
+	data = append(data, transaction.Id)
+	data = append(data, strconv.Itoa(int(transaction.Bill)))
+	data = append(data, strconv.Itoa(int(transaction.Time)))
+	data = append(data, transaction.MCC)
+	data = append(data, transaction.Status)
+
+	return data
+
 }
