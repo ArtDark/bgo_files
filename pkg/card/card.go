@@ -306,41 +306,62 @@ func (s *Service) Card() (*Card, error) {
 	return nil, ErrCardNotFound
 }
 
-// Экспорт пользовательских транзакций в .csv
-func Exporter(user *Card) (err error) {
+// Экспорт пользовательских транзакций в csv, json, xml
+func Exporter(user *Card, name string) (err error) {
 
-	file, err := os.Create("export.csv")
+	switch strings.ToLower(name) {
 
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	case "csv":
+		csvFile, err := os.Create("export.csv")
 
-	defer func(c io.Closer) {
-		if cerr := c.Close(); cerr != nil {
-			log.Println(cerr)
-		}
-	}(file)
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	err = writer.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	for _, value := range user.Transactions {
-		err = writer.Write(transactionToSlice(value))
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
+		defer func(c io.Closer) {
+			if cerr := c.Close(); cerr != nil {
+				log.Println(cerr)
+			}
+		}(csvFile)
+
+		csvWriter := csv.NewWriter(csvFile)
+		defer csvWriter.Flush()
+
+		err = csvWriter.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		for _, value := range user.Transactions {
+			err = csvWriter.Write(transactionToSlice(value))
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+
+		}
+
+		return nil
+	case "json":
+		jsonFile, err := os.Create("export.json")
+
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		defer func(c io.Closer) {
+			if cerr := c.Close(); cerr != nil {
+				log.Println(cerr)
+			}
+		}(jsonFile)
+
 	}
 
-	return nil
+	return err
+
 }
 
 // Функция импорта пользовательских транзакций из .csv
