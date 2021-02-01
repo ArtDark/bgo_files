@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/ArtDark/bgo_files/pkg/card"
 	"log"
 )
@@ -51,9 +50,9 @@ func main() {
 		log.Println(err)
 	}
 
-	fmt.Println(ivanPetrov)
-	fmt.Println("=================================================================================================")
-	fmt.Println(petrIvanov)
+	log.Println(ivanPetrov)
+	log.Println("=================================================================================================")
+	log.Println(petrIvanov)
 
 }
 
