@@ -306,66 +306,45 @@ func (s *Service) Card() (*Card, error) {
 	return nil, ErrCardNotFound
 }
 
-// Экспорт пользовательских транзакций в csv, json, xml
-func Exporter(user *Card, name string) (err error) {
+// Экспорт пользовательских транзакций в .csv
+func ExporterToCsv(user *Card) error {
 
-	switch strings.ToLower(name) {
+	file, err := os.Create("export.csv")
 
-	case "csv":
-		csvFile, err := os.Create("export.csv")
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println(cerr)
+		}
+	}(file)
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	for _, value := range user.Transactions {
+		err = writer.Write(transactionToSlice(value))
 		if err != nil {
 			log.Println(err)
 			return err
 		}
-
-		defer func(c io.Closer) {
-			if cerr := c.Close(); cerr != nil {
-				log.Println(cerr)
-			}
-		}(csvFile)
-
-		csvWriter := csv.NewWriter(csvFile)
-		defer csvWriter.Flush()
-
-		err = csvWriter.Write([]string{"ID", "Bill", "Time", "MCC", "Status"})
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-
-		for _, value := range user.Transactions {
-			err = csvWriter.Write(transactionToSlice(value))
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-
-		}
-
-		return nil
-	case "json":
-		jsonFile, err := os.Create("export.json")
-
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-
-		defer func(c io.Closer) {
-			if cerr := c.Close(); cerr != nil {
-				log.Println(cerr)
-			}
-		}(jsonFile)
 
 	}
 
-	return err
-
+	return nil
 }
 
 // Функция импорта пользовательских транзакций из .csv
-func Importer(us *Card, fileName string) error {
+func ImporterFromCsv(us *Card, fileName string) error {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Println("Cannot open file", err)
@@ -390,6 +369,43 @@ func Importer(us *Card, fileName string) error {
 
 	return nil
 }
+
+func ExporterToJson(user *Card) error {
+	file, err := os.Create("export.json")
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println(cerr)
+		}
+	}(file)
+
+	//TODO: Написать лоигику экспорта json
+
+	return nil
+}
+
+func ImporterFromJson(user *Card, fileName string) error {
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Println("Cannot open file", err)
+	}
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println("Cannot close file", cerr)
+		}
+	}(file)
+
+	//TODO: Написать лоигику импорта json
+
+	return nil
+}
+
 func (c *Card) MapRowToTransaction(transactions [][]string) error {
 
 	for _, i := range transactions {

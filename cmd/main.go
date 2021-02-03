@@ -40,12 +40,12 @@ func main() {
 		log.Println(err)
 	}
 
-	err = card.Exporter(ivanPetrov)
+	err = card.ExporterToCsv(ivanPetrov)
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = card.Importer(petrIvanov, "export.csv")
+	err = card.ImporterFromCsv(petrIvanov, "export.csv")
 	if err != nil {
 		log.Println(err)
 	}
@@ -55,4 +55,3 @@ func main() {
 	log.Println(petrIvanov)
 
 }
-
