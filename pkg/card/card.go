@@ -4,6 +4,7 @@ package card
 import (
 	"encoding/csv"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -25,15 +26,15 @@ var (
 type Card struct {
 	Id           cardId
 	Owner               // Владелец карты
-	Issuer       string // Платежная истема
+	Issuer       string // Платежная система
 	Balance      int    // Баланс карты
 	Currency     string // Валюта
 	Number       string // Номер карты в платежной системе
 	Icon         string // Иконка платежной системы
-	Transactions []Transaction
+	Transactions Transactions
 }
 
-// Идентификат банковской карты
+// Идентификатор банковской карты
 type cardId int64
 
 // Инициалы владельца банковской карты
@@ -43,16 +44,22 @@ type Owner struct {
 }
 
 type Transaction struct {
-	Id     string `json:"id"`
-	Bill   int64  `json:"bill"`
-	Time   int64  `json:"time"`
-	MCC    string `json:"mcc"`
-	Status string `json:"status"`
+	XMLName string `xml:"transaction"`
+	Id      string `json:"id" xml:"id"`
+	Bill    int64  `json:"bill" xml:"bill"`
+	Time    int64  `json:"time" xml:"time"`
+	MCC     string `json:"mcc" xml:"mcc"`
+	Status  string `json:"status" xml:"status"`
+}
+
+type Transactions struct {
+	XMLName      string `xml:"transactions"`
+	Transactions []Transaction
 }
 
 // Метод добавления транзакции
 func (c *Card) AddTransaction(transaction Transaction) {
-	c.Transactions = append(c.Transactions, transaction)
+	c.Transactions.Transactions = append(c.Transactions.Transactions, transaction)
 
 }
 
@@ -308,7 +315,7 @@ func (s *Service) Card() (*Card, error) {
 	return nil, ErrCardNotFound
 }
 
-// Экспорт пользовательских транзакций в .csv
+// Функция экспорта пользовательских транзакций в .csv
 func ExporterToCsv(user *Card) error {
 
 	file, err := os.Create("export.csv")
@@ -333,7 +340,7 @@ func ExporterToCsv(user *Card) error {
 		return err
 	}
 
-	for _, value := range user.Transactions {
+	for _, value := range user.Transactions.Transactions {
 		err = writer.Write(transactionToSlice(value))
 		if err != nil {
 			log.Println(err)
@@ -372,6 +379,7 @@ func ImporterFromCsv(us *Card, fileName string) error {
 	return nil
 }
 
+// Функция экспорта пользовательских транзакций в .json
 func ExporterToJson(user *Card, fileName string) error {
 	file, err := json.MarshalIndent(user.Transactions, "", " ")
 	if err != nil {
@@ -398,6 +406,39 @@ func ImporterFromJson(user *Card, fileName string) error {
 	}(file)
 
 	//TODO: Написать лоигику импорта json
+
+	return nil
+}
+
+func ExporterToXml(user *Card, fileName string) error {
+	file, err := xml.MarshalIndent(user.Transactions, "", " ")
+	if err != nil {
+		return err
+	}
+
+	file = append([]byte(xml.Header), file...)
+
+	err = ioutil.WriteFile("export.xml", file, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ImporterFromXml(user *Card, fileName string) error {
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Println("Cannot open file", err)
+	}
+	defer func(c io.Closer) {
+		if cerr := c.Close(); cerr != nil {
+			log.Println("Cannot close file", cerr)
+		}
+	}(file)
+
+	//TODO: Написать логику импорта xml
 
 	return nil
 }
