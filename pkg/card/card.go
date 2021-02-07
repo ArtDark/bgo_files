@@ -3,9 +3,11 @@ package card
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -41,11 +43,11 @@ type Owner struct {
 }
 
 type Transaction struct {
-	Id     string
-	Bill   int64
-	Time   int64
-	MCC    string
-	Status string
+	Id     string `json:"id"`
+	Bill   int64  `json:"bill"`
+	Time   int64  `json:"time"`
+	MCC    string `json:"mcc"`
+	Status string `json:"status"`
 }
 
 // Метод добавления транзакции
@@ -370,22 +372,16 @@ func ImporterFromCsv(us *Card, fileName string) error {
 	return nil
 }
 
-func ExporterToJson(user *Card) error {
-	file, err := os.Create("export.json")
-
+func ExporterToJson(user *Card, fileName string) error {
+	file, err := json.MarshalIndent(user.Transactions, "", " ")
 	if err != nil {
 		log.Println(err)
-		return err
 	}
 
-	defer func(c io.Closer) {
-		if cerr := c.Close(); cerr != nil {
-			log.Println(cerr)
-		}
-	}(file)
-
-	//TODO: Написать лоигику экспорта json
-
+	err = ioutil.WriteFile(fileName, file, 0644)
+	if err != nil {
+		log.Println(err)
+	}
 	return nil
 }
 

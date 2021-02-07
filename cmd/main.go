@@ -54,4 +54,9 @@ func main() {
 	log.Println("=================================================================================================")
 	log.Println(petrIvanov)
 
+	err = card.ExporterToJson(petrIvanov, "export.json")
+	if err != nil {
+		log.Println(err)
+	}
+
 }
