@@ -13,12 +13,15 @@ func main() {
 			FirstName: "Ivan",
 			LastName:  "Petrov",
 		},
-		Issuer:       "Master Card",
-		Balance:      48234_63,
-		Currency:     "RUB",
-		Number:       "5106212365738734",
-		Icon:         "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
-		Transactions: []card.Transaction{},
+		Issuer:   "Master Card",
+		Balance:  48234_63,
+		Currency: "RUB",
+		Number:   "5106212365738734",
+		Icon:     "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
+		Transactions: card.Transactions{
+			XMLName:      "Transactions",
+			Transactions: []card.Transaction{},
+		},
 	} // Инициализация карточки пользователя Иван Петров
 
 	petrIvanov := &card.Card{
@@ -27,12 +30,15 @@ func main() {
 			FirstName: "Petr",
 			LastName:  "Ivanov",
 		},
-		Issuer:       "Master Card",
-		Balance:      50_000_00,
-		Currency:     "RUB",
-		Number:       "5106213743272347",
-		Icon:         "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
-		Transactions: []card.Transaction{},
+		Issuer:   "Master Card",
+		Balance:  50_000_00,
+		Currency: "RUB",
+		Number:   "5106213743272347",
+		Icon:     "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
+		Transactions: card.Transactions{
+			XMLName:      "Transactions",
+			Transactions: []card.Transaction{},
+		},
 	}
 
 	err := ivanPetrov.MakeTransactions(1_0) // создание транзакций
@@ -40,19 +46,28 @@ func main() {
 		log.Println(err)
 	}
 
-	err = card.Exporter(ivanPetrov)
+	err = card.ExporterToCsv(ivanPetrov)
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = card.Importer(petrIvanov, "export.csv")
+	err = card.ImporterFromCsv(petrIvanov, "export.csv")
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println(ivanPetrov)
-	log.Println("=================================================================================================")
-	log.Println(petrIvanov)
+	//log.Println(ivanPetrov)
+	//log.Println("=================================================================================================")
+	//log.Println(petrIvanov)
+
+	err = card.ExporterToJson(petrIvanov, "export.json")
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = card.ExporterToXml(petrIvanov, "export.xml")
+	if err != nil {
+		log.Println(err)
+	}
 
 }
-
