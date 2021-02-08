@@ -393,6 +393,7 @@ func ExporterToJson(user *Card, fileName string) error {
 	return nil
 }
 
+// Функция импорта пользовательских транзакций из .json
 func ImporterFromJson(user *Card, fileName string) error {
 
 	file, err := os.Open(fileName)
@@ -405,11 +406,24 @@ func ImporterFromJson(user *Card, fileName string) error {
 		}
 	}(file)
 
-	//TODO: Написать лоигику импорта json
+	reader, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	var decoded Transactions
+	err = json.Unmarshal(reader, &decoded)
+	if err != nil {
+		return err
+	}
+
+	for _, value := range decoded.Transactions {
+		user.Transactions.Transactions = append(user.Transactions.Transactions, value)
+	}
 
 	return nil
 }
 
+// Функция экспорта пользовательских транзакций в .xml
 func ExporterToXml(user *Card, fileName string) error {
 	file, err := xml.MarshalIndent(user.Transactions, "", " ")
 	if err != nil {
@@ -426,6 +440,7 @@ func ExporterToXml(user *Card, fileName string) error {
 	return nil
 }
 
+// Функция импорта пользовательских транзакций из .xml
 func ImporterFromXml(user *Card, fileName string) error {
 
 	file, err := os.Open(fileName)
@@ -437,6 +452,21 @@ func ImporterFromXml(user *Card, fileName string) error {
 			log.Println("Cannot close file", cerr)
 		}
 	}(file)
+
+	reader, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	var decoded Transactions
+	err = xml.Unmarshal(reader, &decoded)
+	if err != nil {
+		return err
+	}
+
+	for _, value := range decoded.Transactions {
+		user.Transactions.Transactions = append(user.Transactions.Transactions, value)
+	}
 
 	//TODO: Написать логику импорта xml
 
