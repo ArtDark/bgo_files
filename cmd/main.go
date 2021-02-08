@@ -51,21 +51,28 @@ func main() {
 		log.Println(err)
 	}
 
-	err = card.ImporterFromCsv(petrIvanov, "export.csv")
-	if err != nil {
-		log.Println(err)
-	}
+	//err = card.ImporterFromCsv(petrIvanov, "export.csv")
+	//if err != nil {
+	//	log.Println(err)
+	//}
 
 	//log.Println(ivanPetrov)
 	//log.Println("=================================================================================================")
 	//log.Println(petrIvanov)
 
-	err = card.ExporterToJson(petrIvanov, "export.json")
+	err = card.ExporterToJson(ivanPetrov, "export.json")
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = card.ExporterToXml(petrIvanov, "export.xml")
+	err = card.ExporterToXml(ivanPetrov, "export.xml")
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(petrIvanov.Transactions.Transactions)
+
+	err = card.ImporterFromJson(petrIvanov, "export.json")
 	if err != nil {
 		log.Println(err)
 	}
