@@ -58,7 +58,7 @@ func main() {
 
 	//log.Println(ivanPetrov)
 	//log.Println("=================================================================================================")
-	//log.Println(petrIvanov)
+	log.Println(petrIvanov)
 
 	err = card.ExporterToJson(ivanPetrov, "export.json")
 	if err != nil {
@@ -70,11 +70,24 @@ func main() {
 		log.Println(err)
 	}
 
+
+	err = card.ExporterToXml(ivanPetrov, "export.xml")
 	log.Println(petrIvanov.Transactions.Transactions)
 
-	err = card.ImporterFromJson(petrIvanov, "export.json")
 	if err != nil {
 		log.Println(err)
 	}
+
+	//err = card.ImporterFromJson(petrIvanov, "export.json")
+	//if err != nil {
+	//	log.Println(err)
+	//}
+
+	err = card.ImporterFromXml(petrIvanov, "export.xml")
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(petrIvanov)
 
 }
