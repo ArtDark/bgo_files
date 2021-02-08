@@ -60,12 +60,20 @@ func main() {
 	//log.Println("=================================================================================================")
 	log.Println(petrIvanov)
 
-	err = card.ExporterToJson(petrIvanov, "export.json")
+	err = card.ExporterToJson(ivanPetrov, "export.json")
 	if err != nil {
 		log.Println(err)
 	}
 
 	err = card.ExporterToXml(ivanPetrov, "export.xml")
+	if err != nil {
+		log.Println(err)
+	}
+
+
+	err = card.ExporterToXml(ivanPetrov, "export.xml")
+	log.Println(petrIvanov.Transactions.Transactions)
+
 	if err != nil {
 		log.Println(err)
 	}
