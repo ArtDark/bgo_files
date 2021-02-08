@@ -405,7 +405,19 @@ func ImporterFromJson(user *Card, fileName string) error {
 		}
 	}(file)
 
-	//TODO: Написать лоигику импорта json
+	reader, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	var decoded Transactions
+	err = json.Unmarshal(reader, &decoded)
+	if err != nil {
+		return err
+	}
+
+	for _, value := range decoded.Transactions {
+		user.Transactions.Transactions = append(user.Transactions.Transactions, value)
+	}
 
 	return nil
 }
