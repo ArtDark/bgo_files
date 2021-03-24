@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"github.com/ArtDark/bgo_files/pkg/card"
 	"log"
 )
@@ -19,7 +20,10 @@ func main() {
 		Number:   "5106212365738734",
 		Icon:     "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
 		Transactions: card.Transactions{
-			XMLName:      "Transactions",
+			XMLName: xml.Name{
+				Space: "",
+				Local: "",
+			},
 			Transactions: []card.Transaction{},
 		},
 	} // Инициализация карточки пользователя Иван Петров
@@ -36,7 +40,10 @@ func main() {
 		Number:   "5106213743272347",
 		Icon:     "https://www.mastercard.ru/content/dam/public/enterprise/resources/images/icons/favicon.ico",
 		Transactions: card.Transactions{
-			XMLName:      "Transactions",
+			XMLName: xml.Name{
+				Space: "",
+				Local: "",
+			},
 			Transactions: []card.Transaction{},
 		},
 	}
@@ -51,13 +58,6 @@ func main() {
 		log.Println(err)
 	}
 
-	//err = card.ImporterFromCsv(petrIvanov, "export.csv")
-	//if err != nil {
-	//	log.Println(err)
-	//}
-
-	//log.Println(ivanPetrov)
-	//log.Println("=================================================================================================")
 	log.Println(petrIvanov)
 
 	err = card.ExporterToJson(ivanPetrov, "export.json")
@@ -70,7 +70,6 @@ func main() {
 		log.Println(err)
 	}
 
-
 	err = card.ExporterToXml(ivanPetrov, "export.xml")
 	log.Println(petrIvanov.Transactions.Transactions)
 
@@ -78,16 +77,11 @@ func main() {
 		log.Println(err)
 	}
 
-	//err = card.ImporterFromJson(petrIvanov, "export.json")
-	//if err != nil {
-	//	log.Println(err)
-	//}
-
 	err = card.ImporterFromXml(petrIvanov, "export.xml")
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println(petrIvanov)
+	log.Println(petrIvanov.Transactions.Transactions)
 
 }

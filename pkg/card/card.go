@@ -44,17 +44,17 @@ type Owner struct {
 }
 
 type Transaction struct {
-	XMLName string `xml:"transaction"`
-	Id      string `json:"id" xml:"id"`
-	Bill    int64  `json:"bill" xml:"bill"`
-	Time    int64  `json:"time" xml:"time"`
-	MCC     string `json:"mcc" xml:"mcc"`
-	Status  string `json:"status" xml:"status"`
+	XMLName xml.Name `xml:"transaction"`
+	Id      string   `json:"id" xml:"id"`
+	Bill    int64    `json:"bill" xml:"bill"`
+	Time    int64    `json:"time" xml:"time"`
+	MCC     string   `json:"mcc" xml:"mcc"`
+	Status  string   `json:"status" xml:"status"`
 }
 
 type Transactions struct {
-	XMLName      string `xml:"transactions"`
-	Transactions []Transaction
+	XMLName      xml.Name      `xml:"transactions"`
+	Transactions []Transaction `xml:"transaction"`
 }
 
 // Метод добавления транзакции
@@ -432,7 +432,7 @@ func ExporterToXml(user *Card, fileName string) error {
 
 	file = append([]byte(xml.Header), file...)
 
-	err = ioutil.WriteFile("export.xml", file, 0644)
+	err = ioutil.WriteFile("export.xml", file, 0777)
 	if err != nil {
 		return err
 	}
@@ -458,13 +458,15 @@ func ImporterFromXml(user *Card, fileName string) error {
 		return err
 	}
 
-	var decoded Transactions
+	var decoded *Transactions
 	err = xml.Unmarshal(reader, &decoded)
 	if err != nil {
 		return err
 	}
+	fmt.Println(decoded.Transactions)
 
 	for _, value := range decoded.Transactions {
+
 		user.Transactions.Transactions = append(user.Transactions.Transactions, value)
 	}
 
